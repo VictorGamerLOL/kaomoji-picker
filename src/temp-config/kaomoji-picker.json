@@ -1,0 +1,19 @@
+{
+  "kaomojis": [
+    {
+      "text": "ヽ(´ー｀)ノ",
+      "name": "tired1",
+      "search_tags": ["desperate", "test", "tired"]
+    },
+    {
+      "text": "ヽ(´ー｀)ノ",
+      "name": "tired2",
+      "search_tags": ["desperate", "test", "tired"]
+    },
+    {
+      "text": "ヽ(´ー｀)ノ",
+      "name": "tired3",
+      "search_tags": ["desperate", "test", "tired"]
+    }
+  ]
+}
