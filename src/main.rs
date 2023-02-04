@@ -1,6 +1,7 @@
 use std::{
     alloc::{dealloc, Layout},
     env, fs,
+    path::Path,
     rc::Rc,
     thread,
     time::Duration,
@@ -277,7 +278,7 @@ impl Form {
         drop(layout);
     }
 
-    fn exit_process<T>(self: &Rc<Self>, exit_code: i32) -> T {
+    fn exit_process(self: &Rc<Self>, exit_code: i32) -> ! {
         println!("Exiting with code {}", exit_code);
         unsafe {
             self.kaomojis.drop_in_place();
@@ -291,8 +292,21 @@ fn main() {
     unsafe { QCoreApplication::set_attribute_1a(ApplicationAttribute::AAShareOpenGLContexts) } // So it can stop yelling at me.
     QApplication::init(|a| unsafe {
         let form = Form::new(a);
-        let path = env::var("HOME").unwrap();
-        form.populate(Some((path + "/.config/kaomoji-picker.json").as_str()), None);
+        let home_path = env::var("HOME").unwrap();
+        let base_config = Path::new("/etc/kaomoji-picker.json");
+        let temp = format!("{}{}", &home_path, "/.config/kaomoji-picker.json");
+        let user_config = Path::new(temp.as_str());
+        match user_config.exists() {
+            true => form.populate(Some(user_config.to_str().unwrap()), None),
+            false => match base_config.exists() {
+                true => form.populate(Some(base_config.to_str().unwrap()), None),
+                false => {
+                    eprintln!("No config file found in /etc or ~/.config");
+                    std::process::exit(1);
+                }
+            },
+        }
+        drop(temp);
         form.widget.show();
         QApplication::exec()
     })
